@@ -125,12 +125,14 @@ function createStars(rating, type) {
 
 function renderCafe(cafe) {
     const template = document.getElementById('cafe-card-template');
-    if (!template || !template.content) {
+    if (!template?.content) {
         console.error('Template not found');
         return document.createElement('div');
     }
 
-    const card = template.content.cloneNode(true);
+    // Convert the Node to Element so we can use querySelector
+    const card = document.createElement('div');
+    card.appendChild(template.content.cloneNode(true));
 
     // Set name and location
     const nameElement = card.querySelector('.cafe-name');
@@ -182,11 +184,26 @@ function renderCafe(cafe) {
         }
     }
 
-    return card;
+    // Return the card's first child since we wrapped it
+    return card.firstElementChild;
+}
+
+function initializeHeader() {
+    const header = document.querySelector('header');
+    if (!header) return;
+
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 0) {
+            header.classList.add('scrolled');
+        } else {
+            header.classList.remove('scrolled');
+        }
+    });
 }
 
 async function initializeApp() {
     try {
+        initializeHeader();
         const cafeList = document.getElementById('cafeList');
         if (!cafeList) {
             console.error('Cafe list container not found');
@@ -195,7 +212,7 @@ async function initializeApp() {
 
         // Add skeletons
         const skeletonTemplate = document.getElementById('skeleton-template');
-        if (skeletonTemplate && skeletonTemplate.content) {
+        if (skeletonTemplate instanceof HTMLTemplateElement) {
             for (let i = 0; i < 6; i++) {
                 cafeList.appendChild(skeletonTemplate.content.cloneNode(true));
             }
@@ -234,26 +251,30 @@ function initializeFilters(cafes) {
     let activeFilters = new Set();
     let searchTerm = '';
 
-    filterButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            const filter = button.dataset.filter;
-
-            // Toggle filter
-            if (activeFilters.has(filter)) {
-                activeFilters.delete(filter);
-                button.classList.remove('active');
-            } else {
-                activeFilters.add(filter);
-                button.classList.add('active');
-            }
-
+    if (searchInput instanceof HTMLInputElement) {
+        searchInput.addEventListener('input', () => {
+            searchTerm = searchInput.value.toLowerCase();
             filterCafes(cafes, searchTerm, activeFilters);
         });
-    });
+    }
 
-    searchInput.addEventListener('input', (e) => {
-        searchTerm = e.target.value.toLowerCase();
-        filterCafes(cafes, searchTerm, activeFilters);
+    filterButtons.forEach(button => {
+        if (button instanceof HTMLElement) {
+            button.addEventListener('click', () => {
+                const filter = button.dataset.filter;
+
+                // Toggle filter
+                if (activeFilters.has(filter)) {
+                    activeFilters.delete(filter);
+                    button.classList.remove('active');
+                } else {
+                    activeFilters.add(filter);
+                    button.classList.add('active');
+                }
+
+                filterCafes(cafes, searchTerm, activeFilters);
+            });
+        }
     });
 }
 

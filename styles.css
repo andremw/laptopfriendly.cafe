@@ -21,9 +21,12 @@ body {
 }
 
 header {
+    position: sticky;
+    top: 0;
     background-color: var(--card-background);
     box-shadow: var(--shadow);
     padding: 1rem 2rem;
+    z-index: 100;
 }
 
 nav {
@@ -32,6 +35,7 @@ nav {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 1rem;
 }
 
 .logo {
@@ -41,6 +45,7 @@ nav {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    white-space: nowrap; /* Prevent logo from wrapping */
 }
 
 .logo::before {
@@ -57,6 +62,7 @@ nav {
     cursor: pointer;
     transition: all 0.2s;
     font-weight: 500;
+    white-space: nowrap;
 }
 
 .add-cafe-btn:hover {
@@ -279,6 +285,46 @@ details[open] .details-content {
 }
 
 @media (max-width: 768px) {
+    header {
+        padding: 0.75rem 1rem;
+    }
+
+    .logo {
+        font-size: 1.25rem;
+    }
+
+    .logo::before {
+        font-size: 1.5rem;
+    }
+
+    .add-cafe-btn {
+        padding: 0.5rem;
+        font-size: 0.875rem;
+    }
+
+    /* Show just the plus icon on very small screens */
+    @media (max-width: 380px) {
+        .add-cafe-btn {
+            width: 36px;
+            height: 36px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .add-cafe-btn::before {
+            content: "+";
+            font-size: 1.5rem;
+            line-height: 1;
+        }
+
+        .add-cafe-btn span {
+            display: none;
+        }
+    }
+
     .cafe-grid {
         grid-template-columns: 1fr;
     }
