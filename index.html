@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WorkCafe - Find Your Perfect Work Space</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">WorkCafe</div>
+            <button class="add-cafe-btn" onclick="window.open('https://docs.google.com/forms/d/e/1FAIpQLSeHeIa7A-H_ItnzofKAKoFc_gTu1_Atvvvpu8v74PpTfGsarg/viewform', '_blank')">
+                Add New Cafe +
+            </button>
+        </nav>
+    </header>
+
+    <main>
+        <div class="filters">
+            <div class="search-bar">
+                <input type="text" placeholder="Search cafes...">
+            </div>
+            <div class="quick-filters">
+                <button data-filter="wifi">⚡ Fast WiFi</button>
+                <button data-filter="quiet">🤫 Quiet</button>
+                <button data-filter="power">🔌 Power</button>
+            </div>
+        </div>
+
+        <div class="cafe-grid" id="cafeList">
+            <!-- Cafes will be populated here -->
+        </div>
+    </main>
+
+    <template id="cafe-card-template">
+        <div class="cafe-card">
+            <div class="cafe-header">
+                <h2 class="cafe-name"></h2>
+                <div class="cafe-location"></div>
+            </div>
+            <div class="cafe-ratings">
+                <div class="rating wifi"></div>
+                <div class="rating power"></div>
+                <div class="rating noise"></div>
+                <div class="rating comfort"></div>
+            </div>
+            <div class="cafe-footer">
+                <button class="view-more">View Details</button>
+            </div>
+        </div>
+    </template>
+
+    <script src="app.js"></script>
+</body>
+</html>
