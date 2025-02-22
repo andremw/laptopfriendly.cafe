@@ -3,39 +3,88 @@ const SHEET_ID = 'YOUR_SHEET_ID';
 const API_KEY = 'AIzaSyAjz8JGNba0raBjuvJhbw0C5LeA7bLBM14';
 
 async function fetchCafes() {
-    // Get the published CSV URL from Google Sheets
-    // File -> Share -> Publish to web -> Select sheet -> CSV format
     const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSFvLd2tOTDsWRnff1_Q45swX5Y5GVAWr_iv5B-qsUSOoWmQY1asnQvW0gWKi1jPCF3VrMiO2Pnl2Mp/pub?gid=1925930486&single=true&output=csv';
 
     try {
         const response = await fetch(SHEET_URL);
-        const csvText = await response.text();
-        console.log('CSV Text:', csvText); // Debug log
-        const parsed = parseCSV(csvText);
-        console.log('Parsed Data:', parsed); // Debug log
-        return parsed;
+        if (!response.ok) throw new Error('Network response was not ok');
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder('utf-8');
+        let buffer = '';
+        let headers = null;
+        const cafes = [];
+
+        // Process the stream
+        while (true) {
+            const {done, value} = await reader.read();
+
+            if (done) {
+                // Process any remaining data in buffer
+                if (buffer) {
+                    const row = parseCSVRow(buffer);
+                    if (row.some(cell => cell.trim() !== '')) {
+                        cafes.push(createCafeObject(headers, row));
+                    }
+                }
+                break;
+            }
+
+            // Add new chunk to buffer and split into lines
+            buffer += decoder.decode(value, {stream: true});
+            const lines = buffer.split(/\r?\n/);
+
+            // Keep the last partial line in buffer
+            buffer = lines.pop() || '';
+
+            // Process complete lines
+            for (const line of lines) {
+                if (!line.trim()) continue;
+
+                const row = parseCSVRow(line);
+                if (!headers) {
+                    headers = row;
+                } else if (row.some(cell => cell.trim() !== '')) {
+                    cafes.push(createCafeObject(headers, row));
+                }
+            }
+        }
+
+        return cafes;
     } catch (error) {
         console.error('Error fetching data:', error);
         return [];
     }
 }
 
-function parseCSV(csvText) {
-    // Log the raw CSV text
-    console.log('Raw CSV text:', csvText);
+function parseCSVRow(line) {
+    const row = [];
+    let field = '';
+    let inQuotes = false;
 
-    // Split into rows, handling both \r\n and \n
-    const rows = csvText.split(/\r?\n/).map(row => {
-        console.log('Processing row:', row);
-        return row.split(',');
-    });
+    for (let i = 0; i < line.length; i++) {
+        const char = line[i];
 
-    console.log('All rows:', rows);
-    const [headers, ...data] = rows;
-    console.log('Headers:', headers);
-    console.log('Data rows:', data);
+        if (char === '"') {
+            if (inQuotes && line[i + 1] === '"') {
+                field += '"';
+                i++;
+            } else {
+                inQuotes = !inQuotes;
+            }
+        } else if (char === ',' && !inQuotes) {
+            row.push(field.trim());
+            field = '';
+        } else {
+            field += char;
+        }
+    }
 
-    // Map of original headers to clean property names
+    row.push(field.trim());
+    return row;
+}
+
+function createCafeObject(headers, row) {
     const headerMap = {
         'cafe name': 'name',
         'city': 'location',
@@ -51,36 +100,26 @@ function parseCSV(csvText) {
         'timestamp': 'timestamp'
     };
 
-    // Remove empty rows and create objects with clean property names
-    return data
-        .filter(row => row.some(cell => cell.trim() !== ''))
-        .map(row => {
-            const cafe = {};
-            headers.forEach((header, index) => {
-                if (header && row[index]) {
-                    const cleanHeader = header.replace(/['"]/g, '').trim().toLowerCase();
-                    const propertyName = headerMap[cleanHeader] || cleanHeader;
-                    const value = row[index].replace(/['"]/g, '').trim();
-                    cafe[propertyName] = value;
-                }
-            });
-            console.log('Created cafe object:', cafe);
-            return cafe;
-        });
+    const cafe = {};
+    headers.forEach((header, index) => {
+        if (header && row[index]) {
+            const cleanHeader = header.replace(/['"]/g, '').trim().toLowerCase();
+            const propertyName = headerMap[cleanHeader] || cleanHeader;
+            const value = row[index].replace(/['"]/g, '').trim();
+            cafe[propertyName] = value;
+        }
+    });
+
+    return cafe;
 }
 
-function createRatingElement(rating, type) {
-    const icons = {
-        wifi: '⚡',
-        power: '🔌',
-        comfort: '🛋️',
-        noise: '🔊',
-        coffee: '☕',
-        food: '🍽️',
-        temperature: '🌡️'
-    };
-
-    return `${icons[type]} ${rating}/5`;
+function createStars(rating, type) {
+    const numRating = parseInt(rating);
+    if (numRating === 0) {
+        return `<span class="no-rating">None</span>`;
+    }
+    const stars = '★'.repeat(numRating) + '☆'.repeat(5 - numRating);
+    return stars;
 }
 
 function renderCafe(cafe) {
@@ -91,21 +130,44 @@ function renderCafe(cafe) {
     }
 
     const card = template.content.cloneNode(true);
-    const nameElement = card.querySelector('.cafe-name');
-    const locationElement = card.querySelector('.cafe-location');
-    const ratingsElement = card.querySelector('.cafe-ratings');
 
-    if (nameElement) nameElement.textContent = cafe.name;
-    if (locationElement) locationElement.textContent = cafe.location;
-    if (ratingsElement) {
-        ratingsElement.innerHTML = `
-            <div class="rating">${createRatingElement(cafe.wifi, 'wifi')}</div>
-            <div class="rating">${createRatingElement(cafe.power, 'power')}</div>
-            <div class="rating">${createRatingElement(cafe.noise, 'noise')}</div>
-            <div class="rating">${createRatingElement(cafe.comfort, 'comfort')}</div>
-            <div class="rating">${createRatingElement(cafe.coffee, 'coffee')}</div>
-            <div class="rating">${createRatingElement(cafe.temperature, 'temperature')}</div>
+    // Set name and location
+    card.querySelector('.cafe-name').textContent = cafe.name;
+    card.querySelector('.cafe-location').textContent = cafe.location;
+
+    // Set ratings with stars
+    const wifiStars = card.querySelector('.wifi-stars');
+    const powerStars = card.querySelector('.power-stars');
+    wifiStars.innerHTML = createStars(cafe.wifi, 'wifi');
+    powerStars.innerHTML = createStars(cafe.power, 'power');
+
+    // Add appropriate classes for styling
+    if (parseInt(cafe.wifi) === 0) wifiStars.classList.add('has-no-rating');
+    if (parseInt(cafe.power) === 0) powerStars.classList.add('has-no-rating');
+
+    // Set other ratings
+    card.querySelector('.noise-stars').textContent = createStars(cafe.noise);
+    card.querySelector('.coffee-stars').textContent = createStars(cafe.coffee);
+    card.querySelector('.temperature-stars').textContent = createStars(cafe.temperature);
+    card.querySelector('.comfort-stars').textContent = createStars(cafe.comfort);
+
+    // Add map link if available
+    if (cafe.mapUrl) {
+        const header = card.querySelector('.cafe-header');
+        header.style.cursor = 'pointer';
+        header.addEventListener('click', () => window.open(cafe.mapUrl, '_blank'));
+    }
+
+    // Add comments if available
+    if (cafe.comments) {
+        const detailsContent = card.querySelector('.details-content');
+        const commentsDiv = document.createElement('div');
+        commentsDiv.className = 'rating-group';
+        commentsDiv.innerHTML = `
+            <div class="rating-label">Comments</div>
+            <p class="rating-note">${cafe.comments}</p>
         `;
+        detailsContent.appendChild(commentsDiv);
     }
 
     return card;

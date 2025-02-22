@@ -38,17 +38,69 @@
     <template id="cafe-card-template">
         <div class="cafe-card">
             <div class="cafe-header">
-                <h2 class="cafe-name"></h2>
-                <div class="cafe-location"></div>
+                <img src="https://source.unsplash.com/random/400x200/?cafe" alt="Cafe Interior" class="cafe-image">
+                <div class="cafe-overlay">
+                    <h2 class="cafe-name"></h2>
+                    <p class="cafe-location"></p>
+                </div>
             </div>
-            <div class="cafe-ratings">
-                <div class="rating wifi"></div>
-                <div class="rating power"></div>
-                <div class="rating noise"></div>
-                <div class="rating comfort"></div>
-            </div>
-            <div class="cafe-footer">
-                <button class="view-more">View Details</button>
+
+            <div class="cafe-details">
+                <div class="rating-group">
+                    <div class="rating-label">
+                        <span class="icon">⚡</span>
+                        WiFi Quality
+                    </div>
+                    <div class="rating-stars wifi-stars"></div>
+                </div>
+
+                <div class="rating-group">
+                    <div class="rating-label">
+                        <span class="icon">🔌</span>
+                        Power Outlets
+                    </div>
+                    <div class="rating-stars power-stars"></div>
+                </div>
+
+                <div class="rating-group">
+                    <div class="rating-label">
+                        <span class="icon">🔊</span>
+                        Noise Level
+                    </div>
+                    <div class="rating-stars noise-stars"></div>
+                </div>
+
+                <details>
+                    <summary>
+                        <span class="icon">👇</span>
+                        More Details
+                    </summary>
+                    <div class="details-content">
+                        <div class="rating-group">
+                            <div class="rating-label">
+                                <span class="icon">☕</span>
+                                Coffee Quality
+                            </div>
+                            <div class="rating-stars coffee-stars"></div>
+                        </div>
+
+                        <div class="rating-group">
+                            <div class="rating-label">
+                                <span class="icon">🌡️</span>
+                                Temperature
+                            </div>
+                            <div class="rating-stars temperature-stars"></div>
+                        </div>
+
+                        <div class="rating-group">
+                            <div class="rating-label">
+                                <span class="icon">🛋️</span>
+                                Comfort
+                            </div>
+                            <div class="rating-stars comfort-stars"></div>
+                        </div>
+                    </div>
+                </details>
             </div>
         </div>
     </template>
