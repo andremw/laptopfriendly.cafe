@@ -21,22 +21,52 @@ async function fetchCafes() {
 }
 
 function parseCSV(csvText) {
-    const rows = csvText.split('\n').map(row => row.split(','));
-    console.log('CSV Rows:', rows); // Debug log
-    const [headers, ...data] = rows;
-    console.log('Headers:', headers); // Debug log
+    // Log the raw CSV text
+    console.log('Raw CSV text:', csvText);
 
-    return data.filter(row => row.length === headers.length).map(row => {
-        const cafe = {};
-        headers.forEach((header, index) => {
-            // Clean the header (remove quotes, spaces, and convert to lowercase)
-            const cleanHeader = header.replace(/['"]/g, '').trim().toLowerCase();
-            // Clean the value
-            const value = row[index].replace(/['"]/g, '').trim();
-            cafe[cleanHeader] = value;
-        });
-        return cafe;
+    // Split into rows, handling both \r\n and \n
+    const rows = csvText.split(/\r?\n/).map(row => {
+        console.log('Processing row:', row);
+        return row.split(',');
     });
+
+    console.log('All rows:', rows);
+    const [headers, ...data] = rows;
+    console.log('Headers:', headers);
+    console.log('Data rows:', data);
+
+    // Map of original headers to clean property names
+    const headerMap = {
+        'cafe name': 'name',
+        'city': 'location',
+        'google maps link': 'mapUrl',
+        'wifi quality': 'wifi',
+        'comfort': 'comfort',
+        'noise level': 'noise',
+        'coffee quality': 'coffee',
+        'food quality': 'food',
+        'power outlets availability': 'power',
+        'temperature': 'temperature',
+        'comments': 'comments',
+        'timestamp': 'timestamp'
+    };
+
+    // Remove empty rows and create objects with clean property names
+    return data
+        .filter(row => row.some(cell => cell.trim() !== ''))
+        .map(row => {
+            const cafe = {};
+            headers.forEach((header, index) => {
+                if (header && row[index]) {
+                    const cleanHeader = header.replace(/['"]/g, '').trim().toLowerCase();
+                    const propertyName = headerMap[cleanHeader] || cleanHeader;
+                    const value = row[index].replace(/['"]/g, '').trim();
+                    cafe[propertyName] = value;
+                }
+            });
+            console.log('Created cafe object:', cafe);
+            return cafe;
+        });
 }
 
 function createRatingElement(rating, type) {
@@ -73,6 +103,8 @@ function renderCafe(cafe) {
             <div class="rating">${createRatingElement(cafe.power, 'power')}</div>
             <div class="rating">${createRatingElement(cafe.noise, 'noise')}</div>
             <div class="rating">${createRatingElement(cafe.comfort, 'comfort')}</div>
+            <div class="rating">${createRatingElement(cafe.coffee, 'coffee')}</div>
+            <div class="rating">${createRatingElement(cafe.temperature, 'temperature')}</div>
         `;
     }
 
