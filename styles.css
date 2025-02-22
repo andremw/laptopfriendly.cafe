@@ -329,3 +329,18 @@ details[open] summary .icon {
         opacity: .5;
     }
 }
+
+.no-results {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 2rem;
+    color: #6b7280;
+    background: white;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+}
+
+.no-results p {
+    font-size: 1.1rem;
+    margin: 0;
+}

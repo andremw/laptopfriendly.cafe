@@ -245,12 +245,34 @@ function filterCafes(cafes, searchTerm) {
         return;
     }
 
+    // Clear the current list
     cafeList.innerHTML = '';
 
-    cafes.filter(cafe =>
-        cafe.name?.toLowerCase().includes(searchTerm) ||
-        cafe.location?.toLowerCase().includes(searchTerm)
-    ).forEach(cafe => {
+    // If search is empty, show all cafes
+    if (!searchTerm.trim()) {
+        cafes.forEach(cafe => {
+            cafeList.appendChild(renderCafe(cafe));
+        });
+        return;
+    }
+
+    // Filter and show matching cafes
+    const matchingCafes = cafes.filter(cafe => {
+        const name = cafe.name?.toLowerCase() || '';
+        const location = cafe.location?.toLowerCase() || '';
+        return name.includes(searchTerm) || location.includes(searchTerm);
+    });
+
+    if (matchingCafes.length === 0) {
+        cafeList.innerHTML = `
+            <div class="no-results">
+                <p>No cafes found matching "${searchTerm}"</p>
+            </div>
+        `;
+        return;
+    }
+
+    matchingCafes.forEach(cafe => {
         cafeList.appendChild(renderCafe(cafe));
     });
 }
