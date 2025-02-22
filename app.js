@@ -177,6 +177,7 @@ const renderCafe = (cafe) => {
 const filterCafes = (cafes, searchTerm = '', activeFilters = new Set()) => {
     return cafes
         .filter(cafe => {
+            // Search filter
             if (searchTerm) {
                 const name = cafe.name?.toLowerCase() || '';
                 const location = cafe.location?.toLowerCase() || '';
@@ -185,9 +186,19 @@ const filterCafes = (cafes, searchTerm = '', activeFilters = new Set()) => {
                 }
             }
 
-            if (activeFilters.has('wifi') && parseInt(cafe.wifi) < 4) return false;
-            if (activeFilters.has('quiet') && parseInt(cafe.noise) > 2) return false;
-            if (activeFilters.has('power') && parseInt(cafe.power) < 3) return false;
+            // Quick filters
+            if (activeFilters.has('wifi')) {
+                const wifiRating = parseInt(cafe.wifi) || 0;
+                if (wifiRating < 4) return false;
+            }
+            if (activeFilters.has('quiet')) {
+                const noiseRating = parseInt(cafe.noise) || 0;
+                if (noiseRating > 2) return false;
+            }
+            if (activeFilters.has('power')) {
+                const powerRating = parseInt(cafe.power) || 0;
+                if (powerRating === 0) return false;
+            }
 
             return true;
         });
