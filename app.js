@@ -8,6 +8,7 @@ async function fetchCafes() {
     try {
         const response = await fetch(SHEET_URL);
         if (!response.ok) throw new Error('Network response was not ok');
+        if (!response.body) throw new Error('Response body is null');
 
         const reader = response.body.getReader();
         const decoder = new TextDecoder('utf-8');
@@ -124,7 +125,7 @@ function createStars(rating, type) {
 
 function renderCafe(cafe) {
     const template = document.getElementById('cafe-card-template');
-    if (!template) {
+    if (!template || !template.content) {
         console.error('Template not found');
         return document.createElement('div');
     }
@@ -132,42 +133,53 @@ function renderCafe(cafe) {
     const card = template.content.cloneNode(true);
 
     // Set name and location
-    card.querySelector('.cafe-name').textContent = cafe.name;
-    card.querySelector('.cafe-location').textContent = cafe.location;
+    const nameElement = card.querySelector('.cafe-name');
+    const locationElement = card.querySelector('.cafe-location');
+    if (nameElement) nameElement.textContent = cafe.name;
+    if (locationElement) locationElement.textContent = cafe.location;
 
     // Set ratings with stars
     const wifiStars = card.querySelector('.wifi-stars');
     const powerStars = card.querySelector('.power-stars');
-    wifiStars.innerHTML = createStars(cafe.wifi, 'wifi');
-    powerStars.innerHTML = createStars(cafe.power, 'power');
+    if (wifiStars) wifiStars.innerHTML = createStars(cafe.wifi, 'wifi');
+    if (powerStars) powerStars.innerHTML = createStars(cafe.power, 'power');
 
     // Add appropriate classes for styling
-    if (parseInt(cafe.wifi) === 0) wifiStars.classList.add('has-no-rating');
-    if (parseInt(cafe.power) === 0) powerStars.classList.add('has-no-rating');
+    if (wifiStars && parseInt(cafe.wifi) === 0) wifiStars.classList.add('has-no-rating');
+    if (powerStars && parseInt(cafe.power) === 0) powerStars.classList.add('has-no-rating');
 
     // Set other ratings
-    card.querySelector('.noise-stars').textContent = createStars(cafe.noise);
-    card.querySelector('.coffee-stars').textContent = createStars(cafe.coffee);
-    card.querySelector('.temperature-stars').textContent = createStars(cafe.temperature);
-    card.querySelector('.comfort-stars').textContent = createStars(cafe.comfort);
+    const noiseStars = card.querySelector('.noise-stars');
+    const coffeeStars = card.querySelector('.coffee-stars');
+    const tempStars = card.querySelector('.temperature-stars');
+    const comfortStars = card.querySelector('.comfort-stars');
+
+    if (noiseStars) noiseStars.textContent = createStars(cafe.noise);
+    if (coffeeStars) coffeeStars.textContent = createStars(cafe.coffee);
+    if (tempStars) tempStars.textContent = createStars(cafe.temperature);
+    if (comfortStars) comfortStars.textContent = createStars(cafe.comfort);
 
     // Add map link if available
     if (cafe.mapUrl) {
         const header = card.querySelector('.cafe-header');
-        header.style.cursor = 'pointer';
-        header.addEventListener('click', () => window.open(cafe.mapUrl, '_blank'));
+        if (header) {
+            header.style.cursor = 'pointer';
+            header.addEventListener('click', () => window.open(cafe.mapUrl, '_blank'));
+        }
     }
 
     // Add comments if available
     if (cafe.comments) {
         const detailsContent = card.querySelector('.details-content');
-        const commentsDiv = document.createElement('div');
-        commentsDiv.className = 'rating-group';
-        commentsDiv.innerHTML = `
-            <div class="rating-label">Comments</div>
-            <p class="rating-note">${cafe.comments}</p>
-        `;
-        detailsContent.appendChild(commentsDiv);
+        if (detailsContent) {
+            const commentsDiv = document.createElement('div');
+            commentsDiv.className = 'rating-group';
+            commentsDiv.innerHTML = `
+                <div class="rating-label">Comments</div>
+                <p class="rating-note">${cafe.comments}</p>
+            `;
+            detailsContent.appendChild(commentsDiv);
+        }
     }
 
     return card;
@@ -175,15 +187,27 @@ function renderCafe(cafe) {
 
 async function initializeApp() {
     try {
-        const cafes = await fetchCafes();
-        console.log('Fetched Cafes:', cafes); // Debug log
-
         const cafeList = document.getElementById('cafeList');
         if (!cafeList) {
             console.error('Cafe list container not found');
             return;
         }
 
+        // Add skeletons
+        const skeletonTemplate = document.getElementById('skeleton-template');
+        if (skeletonTemplate && skeletonTemplate.content) {
+            for (let i = 0; i < 6; i++) {
+                cafeList.appendChild(skeletonTemplate.content.cloneNode(true));
+            }
+        }
+
+        // Start loading cafes
+        const cafes = await fetchCafes();
+
+        // Clear skeletons
+        cafeList.innerHTML = '';
+
+        // Add real cafe cards
         cafes.forEach(cafe => {
             cafeList.appendChild(renderCafe(cafe));
         });
@@ -202,6 +226,15 @@ async function initializeApp() {
 
     } catch (error) {
         console.error('Error loading cafes:', error);
+        // Show error state
+        const cafeList = document.getElementById('cafeList');
+        if (cafeList) {
+            cafeList.innerHTML = `
+                <div class="error-state">
+                    <p>Failed to load cafes. Please try again later.</p>
+                </div>
+            `;
+        }
     }
 }
 
