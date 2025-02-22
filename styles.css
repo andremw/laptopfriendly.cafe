@@ -93,6 +93,12 @@ main {
     border-color: var(--accent-color);
 }
 
+.quick-filters button.active {
+    background: var(--accent-color);
+    color: white;
+    border-color: var(--accent-color);
+}
+
 .cafe-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));

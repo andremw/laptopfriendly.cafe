@@ -212,21 +212,11 @@ async function initializeApp() {
             cafeList.appendChild(renderCafe(cafe));
         });
 
-        // Initialize search
-        const searchInput = document.querySelector('.search-bar input');
-        if (!searchInput) {
-            console.error('Search input not found');
-            return;
-        }
-
-        searchInput.addEventListener('input', (e) => {
-            const searchTerm = e.target.value.toLowerCase();
-            filterCafes(cafes, searchTerm);
-        });
+        // Initialize filters
+        initializeFilters(cafes);
 
     } catch (error) {
         console.error('Error loading cafes:', error);
-        // Show error state
         const cafeList = document.getElementById('cafeList');
         if (cafeList) {
             cafeList.innerHTML = `
@@ -238,7 +228,36 @@ async function initializeApp() {
     }
 }
 
-function filterCafes(cafes, searchTerm) {
+function initializeFilters(cafes) {
+    const filterButtons = document.querySelectorAll('.quick-filters button');
+    const searchInput = document.querySelector('.search-bar input');
+    let activeFilters = new Set();
+    let searchTerm = '';
+
+    filterButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const filter = button.dataset.filter;
+
+            // Toggle filter
+            if (activeFilters.has(filter)) {
+                activeFilters.delete(filter);
+                button.classList.remove('active');
+            } else {
+                activeFilters.add(filter);
+                button.classList.add('active');
+            }
+
+            filterCafes(cafes, searchTerm, activeFilters);
+        });
+    });
+
+    searchInput.addEventListener('input', (e) => {
+        searchTerm = e.target.value.toLowerCase();
+        filterCafes(cafes, searchTerm, activeFilters);
+    });
+}
+
+function filterCafes(cafes, searchTerm, activeFilters) {
     const cafeList = document.getElementById('cafeList');
     if (!cafeList) {
         console.error('Cafe list container not found');
@@ -248,31 +267,45 @@ function filterCafes(cafes, searchTerm) {
     // Clear the current list
     cafeList.innerHTML = '';
 
-    // If search is empty, show all cafes
-    if (!searchTerm.trim()) {
-        cafes.forEach(cafe => {
-            cafeList.appendChild(renderCafe(cafe));
+    let filteredCafes = cafes;
+
+    // Apply search filter if there's a search term
+    if (searchTerm.trim()) {
+        filteredCafes = filteredCafes.filter(cafe => {
+            const name = cafe.name?.toLowerCase() || '';
+            const location = cafe.location?.toLowerCase() || '';
+            return name.includes(searchTerm) || location.includes(searchTerm);
         });
-        return;
     }
 
-    // Filter and show matching cafes
-    const matchingCafes = cafes.filter(cafe => {
-        const name = cafe.name?.toLowerCase() || '';
-        const location = cafe.location?.toLowerCase() || '';
-        return name.includes(searchTerm) || location.includes(searchTerm);
-    });
+    // Apply quick filters
+    if (activeFilters.size > 0) {
+        filteredCafes = filteredCafes.filter(cafe => {
+            if (activeFilters.has('wifi')) {
+                if (parseInt(cafe.wifi && cafe.wifi) < 4) return false;
+            }
+            if (activeFilters.has('quiet')) {
+                if (parseInt(cafe.noise && cafe.noise) < 3) return false;
+            }
+            if (activeFilters.has('power')) {
+                if (cafe.power && parseInt(cafe.power) < 3) return false;
+            }
+            return true;
+        });
+    }
 
-    if (matchingCafes.length === 0) {
+    // Show no results message if nothing matches
+    if (filteredCafes.length === 0) {
         cafeList.innerHTML = `
             <div class="no-results">
-                <p>No cafes found matching "${searchTerm}"</p>
+                <p>No cafes found matching your criteria</p>
             </div>
         `;
         return;
     }
 
-    matchingCafes.forEach(cafe => {
+    // Show matching cafes
+    filteredCafes.forEach(cafe => {
         cafeList.appendChild(renderCafe(cafe));
     });
 }
