@@ -1,9 +1,9 @@
 :root {
     --primary-color: #2D3436;
-    --accent-color: #6C5CE7;
-    --background-color: #FAFAFA;
+    --accent-color: #C7844C; /* Warm coffee brown */
+    --background-color: #FDF8F3; /* Warm off-white */
     --card-background: #FFFFFF;
-    --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --shadow: 0 4px 6px rgba(139, 69, 19, 0.1);
 }
 
 * {
@@ -15,6 +15,7 @@
 body {
     font-family: 'Inter', sans-serif;
     background-color: var(--background-color);
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0C13.432 0 0 13.432 0 30c0 16.568 13.432 30 30 30 16.568 0 30-13.432 30-30C60 13.432 46.568 0 30 0zm0 45c-8.284 0-15-6.716-15-15 0-8.284 6.716-15 15-15 8.284 0 15 6.716 15 15 0 8.284-6.716 15-15 15z' fill='%23C7844C' fill-opacity='0.03'/%3E%3C/svg%3E");
     color: var(--primary-color);
     line-height: 1.6;
 }
@@ -37,20 +38,30 @@ nav {
     font-size: 1.5rem;
     font-weight: 600;
     color: var(--accent-color);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.logo::before {
+    content: "☕";
+    font-size: 1.8rem;
 }
 
 .add-cafe-btn {
     background-color: var(--accent-color);
     color: white;
     border: none;
-    padding: 0.5rem 1rem;
+    padding: 0.5rem 1.25rem;
     border-radius: 6px;
     cursor: pointer;
-    transition: transform 0.2s;
+    transition: all 0.2s;
+    font-weight: 500;
 }
 
 .add-cafe-btn:hover {
     transform: translateY(-2px);
+    background-color: #B67341;
 }
 
 main {
@@ -80,19 +91,14 @@ main {
 
 .quick-filters button {
     padding: 0.5rem 1rem;
-    border: 1px solid #ddd;
+    border: 1px solid rgba(199, 132, 76, 0.2);
     border-radius: 20px;
     background: white;
     cursor: pointer;
     transition: all 0.2s;
 }
 
-.quick-filters button:hover {
-    background: var(--accent-color);
-    color: white;
-    border-color: var(--accent-color);
-}
-
+.quick-filters button:hover,
 .quick-filters button.active {
     background: var(--accent-color);
     color: white;
@@ -111,11 +117,12 @@ main {
     overflow: hidden;
     box-shadow: var(--shadow);
     transition: transform 0.2s, box-shadow 0.2s;
+    border: 1px solid rgba(199, 132, 76, 0.1);
 }
 
 .cafe-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 10px 15px -3px rgba(139, 69, 19, 0.15);
 }
 
 .cafe-header {
@@ -176,7 +183,7 @@ main {
 }
 
 .rating-stars {
-    color: #fbbf24;
+    color: var(--accent-color);
     font-size: 0.875rem;
     letter-spacing: 0.05em;
 }
