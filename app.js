@@ -161,10 +161,13 @@ const renderCafe = (cafe) => {
         const detailsContent = container.querySelector('.details-content');
         if (detailsContent) {
             const commentsDiv = document.createElement('div');
-            commentsDiv.className = 'rating-group';
+            commentsDiv.className = 'comments-group';
             commentsDiv.innerHTML = `
-                <div class="rating-label">Comments</div>
-                <p class="rating-note">${cafe.comments}</p>
+                <div class="comments-label">
+                    <span class="icon">💬</span>
+                    Comments
+                </div>
+                <p class="comments-text">${cafe.comments}</p>
             `;
             detailsContent.appendChild(commentsDiv);
         }
