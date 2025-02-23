@@ -63,6 +63,9 @@ nav {
     transition: all 0.2s;
     font-weight: 500;
     white-space: nowrap;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
 }
 
 .add-cafe-btn:hover {
