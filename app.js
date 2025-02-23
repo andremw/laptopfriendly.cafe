@@ -182,11 +182,16 @@ const filterCafes = (cafes, searchTerm = '', activeFilters = new Set()) => {
         .filter(cafe => {
             // Search filter
             if (searchTerm) {
+                const searchTerms = searchTerm.toLowerCase().split(/[\s,]+/); // Split on spaces and commas
                 const name = cafe.name?.toLowerCase() || '';
                 const location = cafe.location?.toLowerCase() || '';
-                if (!name.includes(searchTerm) && !location.includes(searchTerm)) {
-                    return false;
-                }
+
+                // Match if ANY search term is found in either name or location
+                const matchesSearch = searchTerms.some(term =>
+                    name.includes(term) || location.includes(term)
+                );
+
+                if (!matchesSearch) return false;
             }
 
             // Quick filters
