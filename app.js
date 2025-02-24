@@ -1,6 +1,3 @@
-// Replace with your Google Sheets API key and Sheet ID
-const API_KEY = 'AIzaSyAjz8JGNba0raBjuvJhbw0C5LeA7bLBM14';
-
 // Data Fetching Layer
 const fetchCSV = async (url) => {
     const response = await fetch(url);
