@@ -75,15 +75,15 @@ const headerMap = {
     'cafe name': 'name',
     'city': 'location',
     'google maps link': 'mapUrl',
-    'wifi quality': 'wifi',
-    'comfort': 'comfort',
-    'quietness': 'noise',
-    'coffee quality': 'coffee',
-    'food quality': 'food',
-    'power outlets availability': 'power',
-    'temperature': 'temperature',
-    'comments': 'comments',
-    'timestamp': 'timestamp'
+    'avg wifi quality': 'wifi',
+    'avg comfort': 'comfort',
+    'avg quietness': 'noise',
+    'avg coffee quality': 'coffee',
+    'avg food quality': 'food',
+    'avg power outlets availability': 'power',
+    'avg temperature': 'temperature',
+    // 'comments': 'comments',
+    // 'timestamp': 'timestamp'
 };
 
 const transformToObjects = ({ headers, rows }) => {
@@ -243,7 +243,7 @@ const updateUI = (cafes, searchTerm, activeFilters) => {
 
 // Main App
 const initializeApp = async () => {
-    const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSFvLd2tOTDsWRnff1_Q45swX5Y5GVAWr_iv5B-qsUSOoWmQY1asnQvW0gWKi1jPCF3VrMiO2Pnl2Mp/pub?gid=1925930486&single=true&output=csv';
+    const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSFvLd2tOTDsWRnff1_Q45swX5Y5GVAWr_iv5B-qsUSOoWmQY1asnQvW0gWKi1jPCF3VrMiO2Pnl2Mp/pub?gid=1569478054&single=true&output=csv';
     let cafes = [];
     let searchTerm = '';
     let activeFilters = new Set();
