@@ -175,42 +175,47 @@ const renderCafe = (cafe) => {
 
 // Filtering Layer
 const filterCafes = (cafes, searchTerm = '', activeFilters = new Set()) => {
-    return cafes
-        .filter(cafe => {
-            // Search filter
-            if (searchTerm) {
-                const searchTerms = searchTerm.toLowerCase().split(/[\s,]+/); // Split on spaces and commas
+    return cafes.filter(cafe => {
+        // Handle current search term
+        if (searchTerm) {
+            const name = cafe.name?.toLowerCase() || '';
+            const location = cafe.location?.toLowerCase() || '';
+            if (!name.includes(searchTerm) && !location.includes(searchTerm)) {
+                return false;
+            }
+        }
+
+        // Handle all filters including pinned searches
+        for (const filter of activeFilters) {
+            if (filter.startsWith('search:')) {
+                // Handle pinned search term
+                const term = filter.split(':')[1].toLowerCase();
                 const name = cafe.name?.toLowerCase() || '';
                 const location = cafe.location?.toLowerCase() || '';
+                if (!name.includes(term) && !location.includes(term)) {
+                    return false;
+                }
+            } else {
+                // Handle regular filters
+                switch (filter) {
+                    case 'wifi':
+                        if ((parseInt(cafe.wifi) || 0) < 4) return false;
+                        break;
+                    case 'quiet':
+                        if ((parseInt(cafe.noise) || 0) < 4) return false;
+                        break;
+                    case 'power':
+                        if ((parseInt(cafe.power) || 0) === 0) return false;
+                        break;
+                    case 'coffee':
+                        if ((parseInt(cafe.coffee) || 0) < 4) return false;
+                        break;
+                }
+            }
+        }
 
-                // Match if ANY search term is found in either name or location
-                const matchesSearch = searchTerms.some(term =>
-                    name.includes(term) || location.includes(term)
-                );
-
-                if (!matchesSearch) return false;
-            }
-
-            // Quick filters
-            if (activeFilters.has('wifi')) {
-                const wifiRating = parseInt(cafe.wifi) || 0;
-                if (wifiRating < 4) return false;
-            }
-            if (activeFilters.has('quiet')) {
-                const noiseRating = parseInt(cafe.noise) || 0;
-                if (noiseRating < 4) return false;
-            }
-            if (activeFilters.has('power')) {
-                const powerRating = parseInt(cafe.power) || 0;
-                if (powerRating === 0) return false;
-            }
-            if (activeFilters.has('coffee')) {
-                const coffeeRating = parseInt(cafe.coffee) || 0;
-                if (coffeeRating < 4) return false;
-            }
-
-            return true;
-        });
+        return true;
+    });
 };
 
 // UI State Management
@@ -261,32 +266,71 @@ const initializeApp = async () => {
 
         // Initialize UI
         const searchInput = document.querySelector('.search-bar input');
-        const filterButtons = document.querySelectorAll('.quick-filters button');
+        const pinButton = document.querySelector('.pin-search');
+        const filterContainer = document.querySelector('.quick-filters');
 
-        if (searchInput instanceof HTMLInputElement) {
+        if (searchInput instanceof HTMLInputElement && pinButton && filterContainer) {
+            // Handle search input
             searchInput.addEventListener('input', (e) => {
                 if (e.target instanceof HTMLInputElement) {
                     searchTerm = e.target.value.toLowerCase();
+                    // Update pin button opacity based on search value
+                    pinButton.style.opacity = searchTerm.trim() ? '1' : '0.5';
+                    updateUI(cafes, searchTerm, activeFilters);
+                }
+            });
+
+            // Handle regular filter buttons
+            filterContainer.querySelectorAll('button[data-filter]').forEach(button => {
+                if (button instanceof HTMLButtonElement) {
+                    button.addEventListener('click', () => {
+                        const filter = button.dataset.filter;
+                        if (activeFilters.has(filter)) {
+                            activeFilters.delete(filter);
+                            button.classList.remove('active');
+                        } else {
+                            activeFilters.add(filter);
+                            button.classList.add('active');
+                        }
+                        updateUI(cafes, searchTerm, activeFilters);
+                    });
+                }
+            });
+
+            // Handle pin button click
+            pinButton.addEventListener('click', () => {
+                if (!searchInput.value.trim()) return;
+
+                const term = searchInput.value.trim();
+                const filterId = `search:${term}`;
+
+                if (!activeFilters.has(filterId)) {
+                    // Create new filter button
+                    const button = document.createElement('button');
+                    button.textContent = `🔍 "${term}"`;
+                    button.dataset.filter = filterId;
+                    button.dataset.custom = 'true';
+
+                    // Add click handler to remove filter
+                    button.addEventListener('click', () => {
+                        activeFilters.delete(filterId);
+                        button.remove();
+                        updateUI(cafes, searchTerm, activeFilters);
+                    });
+
+                    // Add to filters
+                    filterContainer.appendChild(button);
+                    activeFilters.add(filterId);
+
+                    // Clear search and reset pin button opacity
+                    searchInput.value = '';
+                    searchTerm = '';
+                    pinButton.style.opacity = '0.5';
+
                     updateUI(cafes, searchTerm, activeFilters);
                 }
             });
         }
-
-        filterButtons.forEach(button => {
-            if (button instanceof HTMLButtonElement) {
-                button.addEventListener('click', () => {
-                    const filter = button.dataset.filter;
-                    if (activeFilters.has(filter)) {
-                        activeFilters.delete(filter);
-                        button.classList.remove('active');
-                    } else {
-                        activeFilters.add(filter);
-                        button.classList.add('active');
-                    }
-                    updateUI(cafes, searchTerm, activeFilters);
-                });
-            }
-        });
 
         // Initial render
         updateUI(cafes, searchTerm, activeFilters);

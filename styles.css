@@ -83,12 +83,42 @@ main {
     margin-bottom: 2rem;
 }
 
+.search-bar {
+    position: relative;
+    display: flex;
+    gap: 0.5rem;
+}
+
 .search-bar input {
     width: 100%;
     padding: 0.8rem;
     border: 2px solid #eee;
     border-radius: 8px;
     font-size: 1rem;
+}
+
+.pin-search {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    background: white;
+    cursor: pointer;
+    opacity: 0.5;
+    transition: all 0.2s;
+    font-size: 1.1rem;
+}
+
+.pin-search:hover {
+    opacity: 1;
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+}
+
+/* Make pin button fully opaque when input has text */
+.search-bar input:not(:placeholder-shown) + .pin-search {
+    opacity: 1;
+    border-color: var(--accent-color);
+    color: var(--accent-color);
 }
 
 .quick-filters {
@@ -117,6 +147,17 @@ main {
     background: var(--accent-color);
     color: white;
     border-color: var(--accent-color);
+}
+
+/* Style for custom filter buttons */
+.quick-filters button[data-custom="true"] {
+    padding-right: 0.5rem;  /* Make room for the X */
+}
+
+.quick-filters button[data-custom="true"]::after {
+    content: "×";
+    margin-left: 0.5rem;
+    font-size: 1.2em;
 }
 
 .cafe-grid {
