@@ -325,6 +325,12 @@ details[open] .details-content {
 
     .cafe-grid {
         grid-template-columns: 1fr;
+        justify-items: center;  /* Center cards */
+    }
+
+    .cafe-card {
+        width: 100%;          /* Full width up to max-width */
+        max-width: 320px;     /* Keep max-width constraint */
     }
 }
 
