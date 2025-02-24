@@ -198,11 +198,15 @@ const filterCafes = (cafes, searchTerm = '', activeFilters = new Set()) => {
             }
             if (activeFilters.has('quiet')) {
                 const noiseRating = parseInt(cafe.noise) || 0;
-                if (noiseRating > 2) return false;
+                if (noiseRating < 4) return false;
             }
             if (activeFilters.has('power')) {
                 const powerRating = parseInt(cafe.power) || 0;
                 if (powerRating === 0) return false;
+            }
+            if (activeFilters.has('coffee')) {
+                const coffeeRating = parseInt(cafe.coffee) || 0;
+                if (coffeeRating < 4) return false;
             }
 
             return true;
