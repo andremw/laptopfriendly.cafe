@@ -105,9 +105,14 @@ main {
     background: white;
     cursor: pointer;
     transition: all 0.2s;
+    color: #4b5563;
 }
 
-.quick-filters button:hover,
+.quick-filters button:hover {
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+}
+
 .quick-filters button.active {
     background: var(--accent-color);
     color: white;
