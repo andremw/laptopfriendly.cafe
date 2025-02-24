@@ -280,6 +280,13 @@ const initializeApp = async () => {
                 }
             });
 
+            // Handle Enter key in search
+            searchInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && searchInput.value.trim()) {
+                    pinButton.click();
+                }
+            });
+
             // Handle regular filter buttons
             filterContainer.querySelectorAll('button[data-filter]').forEach(button => {
                 if (button instanceof HTMLButtonElement) {
