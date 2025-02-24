@@ -77,7 +77,7 @@ const headerMap = {
     'google maps link': 'mapUrl',
     'wifi quality': 'wifi',
     'comfort': 'comfort',
-    'noise level': 'noise',
+    'quietness': 'noise',
     'coffee quality': 'coffee',
     'food quality': 'food',
     'power outlets availability': 'power',
