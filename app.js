@@ -82,23 +82,26 @@ const headerMap = {
     'avg food quality': 'food',
     'avg power outlets availability': 'power',
     'avg temperature': 'temperature',
+    'avg_all': 'avgAll',
     // 'comments': 'comments',
     // 'timestamp': 'timestamp'
 };
 
 const transformToObjects = ({ headers, rows }) => {
-    return rows.map(row => {
-        const cafe = {};
-        headers.forEach((header, index) => {
-            if (header && row[index]) {
-                const cleanHeader = header.replace(/['"]/g, '').trim().toLowerCase();
-                const propertyName = headerMap[cleanHeader] || cleanHeader;
-                const value = row[index].replace(/['"]/g, '').trim();
-                cafe[propertyName] = value;
-            }
-        });
-        return cafe;
-    });
+    return rows
+        .map(row => {
+            const cafe = {};
+            headers.forEach((header, index) => {
+                if (header && row[index]) {
+                    const cleanHeader = header.replace(/['"]/g, '').trim().toLowerCase();
+                    const propertyName = headerMap[cleanHeader] || cleanHeader;
+                    const value = row[index].replace(/['"]/g, '').trim();
+                    cafe[propertyName] = value;
+                }
+            });
+            return cafe;
+        })
+        .sort((a, b) => parseFloat(b.avgAll) - parseFloat(a.avgAll));
 };
 
 // UI Rendering Layer
