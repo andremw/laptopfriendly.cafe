@@ -73,7 +73,7 @@ const parseCSVRow = (line) => {
 // Data Transformation Layer
 const headerMap = {
     'cafe name': 'name',
-    'city': 'location',
+    'city (and suburb)': 'location',
     'google maps link': 'mapUrl',
     'avg wifi quality': 'wifi',
     'avg comfort': 'comfort',
